@@ -95,7 +95,6 @@ void GlobalPlanner::initialize(std::string name, costmap_2d::Costmap2DROS* costm
 
 void GlobalPlanner::initialize(std::string name, costmap_2d::Costmap2D* costmap, std::string frame_id) {
     if (!initialized_) {
-        ROS_WARN("ENTERING INITIALIZE_1!!");
         ros::NodeHandle private_nh("~/" + name);
         costmap_ = costmap;
         frame_id_ = frame_id;
@@ -156,6 +155,10 @@ void GlobalPlanner::initialize(std::string name, costmap_2d::Costmap2D* costmap,
         dynamic_reconfigure::Server<global_planner::GlobalPlannerConfig>::CallbackType cb = boost::bind(
                 &GlobalPlanner::reconfigureCB, this, _1, _2);
         dsrv_->setCallback(cb);
+
+        // new feature for sub_goals,
+        //plan_subscribe_ = private_nh.subscribe<geometry_msgs::Pose>("intiialpose",TODOcallback 1);
+        subgoal_pub_ = private_nh.advertise<geometry_msgs::PoseArray>("planned_subgoals", 1);
 
         initialized_ = true;
     } else
@@ -234,6 +237,12 @@ bool GlobalPlanner::makePlan(const geometry_msgs::PoseStamped& start, const geom
     ros::NodeHandle n;
     std::string global_frame = frame_id_;
 
+    //** START NEW LOOP HERE, RUN LIKE NORMAL IF v_sub_goals_ is empty;
+
+    // first iteration, use start as start, if v_sub_goals_.isNotEmpty() then goal = first element
+    // second iteration run start as first element then use goal as second element,
+    // third iteration run start as second element then use goal as real goal...
+
     //until tf can handle transforming things that are way in the past... we'll require the goal to be in our global frame
     if (tf::resolve(tf_prefix_, goal.header.frame_id) != tf::resolve(tf_prefix_, global_frame)) {
         ROS_ERROR(
@@ -293,7 +302,7 @@ bool GlobalPlanner::makePlan(const geometry_msgs::PoseStamped& start, const geom
     path_maker_->setSize(nx, ny);
     potential_array_ = new float[nx * ny];
 
-    outlineMap(costmap_->getCharMap(), nx, ny, costmap_2d::LETHAL_OBSTACLE);
+    //outlineMap(costmap_->getCharMap(), nx, ny, costmap_2d::LETHAL_OBSTACLE);
 
     bool found_legal = planner_->calculatePotentials(costmap_->getCharMap(), start_x, start_y, goal_x, goal_y,
                                                     nx * ny * 2, potential_array_);
@@ -302,7 +311,6 @@ bool GlobalPlanner::makePlan(const geometry_msgs::PoseStamped& start, const geom
         planner_->clearEndpoint(costmap_->getCharMap(), potential_array_, goal_x_i, goal_y_i, 2);
     if(publish_potential_)
         publishPotential(potential_array_);
-
     if (found_legal) {
         //extract the plan
         if (getPlanFromPotential(start_x, start_y, goal_x, goal_y, goal, plan)) {

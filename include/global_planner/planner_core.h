@@ -42,6 +42,7 @@
 #include <costmap_2d/costmap_2d.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Point.h>
+#include <geometry_msgs/PoseArray.h>
 #include <nav_msgs/Path.h>
 #include <tf/transform_datatypes.h>
 #include <vector>
@@ -204,6 +205,10 @@ class GlobalPlanner : public nav_core::BaseGlobalPlanner {
 
         dynamic_reconfigure::Server<global_planner::GlobalPlannerConfig> *dsrv_;
         void reconfigureCB(global_planner::GlobalPlannerConfig &config, uint32_t level);
+
+        // for handling subgoals.
+        std::vector<geometry_msgs::PoseStamped> v_sub_goals_;
+        ros::Publisher subgoal_pub_;
 
 };
 
