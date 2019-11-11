@@ -4,13 +4,10 @@
   <description>
      A path planner library and node.
   </description>
-  <maintainer email="davidvlu@gmail.com">David V. Lu!!</maintainer>
-  <maintainer email="mfergs7@gmail.com">Michael Ferguson</maintainer>
-  <maintainer email="ahoy@fetchrobotics.com">Aaron Hoy</maintainer>
+  <maintainer email="fredrik@ginsberg.se">Fredrik Ginsberg</maintainer>
   <license>BSD</license>
 
-  <author>David Lu!!</author>
-  <url>http://wiki.ros.org/global_planner</url>
+  <author>Fredrik Ginsberg</author>
 
   <buildtool_depend>catkin</buildtool_depend>
 
