@@ -111,7 +111,6 @@ int main(int argc, char** argv) {
     tf::TransformListener tf(ros::Duration(10));
 
     costmap_2d::Costmap2DROS lcr("costmap", tf);
-    ROS_WARN("TEST TEST");
     queue_planner::PlannerWithCostmap pppp("planner", &lcr);
 
     ros::spin();
